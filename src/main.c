@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+const int NDIGITS = 4;
+
 const int pin_led_red = 0x20000;	//C17
 const int pin_led_green = 0x10000;  //C16
 const int pin_led_yellow = 0x2000;	//C13
@@ -40,6 +42,10 @@ void ResultatIncorrecte();
 
 //Inicializa todos los periféricos
 void init();
+
+//Actualitza la pantalla con los datos de la puntuación del jugador
+void updateScore(int score, int display[4][2], int nRows, int nCols);
+
 
 
 int main (void) 
@@ -100,7 +106,7 @@ void init()
 		PORTB_PCR10 = 0x100;
 		PORTB_PCR11 = 0x100;
 		
-		// Configuramos los pines como salida
+		// Configuramos el pin como salida
 		GPIOC_PDDR |= (pin_led_red | pin_led_green | pin_led_yellow | pin_led_blue);
 		GPIOE_PDDR |= (pin_1_display | pin_2_display | pin_3_display | pin_4_display
 						| pin_11_display | pin_14_display | pin_15_display | pin_16_display);
@@ -112,6 +118,92 @@ void init()
 		GPIOC_PDDR &= ~pin_button_green;
 		GPIOC_PDDR &= ~pin_button_yellow;
 		GPIOC_PDDR &= ~pin_button_blue;
+}
+
+void updateScore(int score, int display[4][2], int nRows, int nCols) {
+  int score_array[nRows];
+
+  if (score > 999)
+    score_array[0] = score / 1000; // millares
+  else
+    score_array[0] = 0;
+  if (score > 99)
+    score_array[1] = (score % 1000) / 100; // centenas
+  else
+    score_array[1] = 0;
+  if (score > 9) {
+    score_array[2] = (score % 100) / 10; // decenas
+    score_array[3] = score % 10;         // unidades
+  } else {
+    score_array[2] = 0;     // decenas
+    score_array[3] = score; // unidades
+  }
+
+  for (int i = 0; i < nRows; i++) {
+    // Para los dígitos
+    switch (i) {
+    case 0:
+      display[i][0] = (pin_8_display | pin_6_display);
+      display[i][1] = pin_2_display;
+      break;
+    case 1:
+      display[i][0] = (pin_8_display | pin_6_display);
+      display[i][1] = pin_1_display;
+      break;
+    case 2:
+      display[i][0] = pin_8_display;
+      display[i][1] = (pin_2_display | pin_1_display);
+      break;
+    case 3:
+      display[i][0] = pin_6_display;
+      display[i][1] = (pin_2_display | pin_1_display);
+      break;
+    }
+    // Para los números
+    switch (score_array[i]) {
+    case 0:
+      display[i][0] |= (pin_13_display | pin_5_display);
+      display[i][1] |= (pin_16_display | pin_14_display | pin_11_display | pin_3_display);
+      break;
+    case 1:
+      display[i][0] |= pin_13_display;
+      display[i][1] |= pin_16_display;
+      break;
+    case 2:
+      display[i][0] |= pin_5_display;
+      display[i][1] |= (pin_16_display | pin_15_display | pin_14_display | pin_3_display);
+      break;
+    case 3:
+      display[i][0] |= pin_13_display;
+      display[i][1] |= (pin_16_display | pin_15_display | pin_14_display | pin_3_display);
+      break;
+    case 4:
+      display[i][0] |= pin_13_display;
+      display[i][1] |= (pin_16_display | pin_15_display | pin_11_display);
+      break;
+    case 5:
+      display[i][0] |= pin_13_display;
+      display[i][1] |= (pin_15_display | pin_14_display | pin_11_display | pin_3_display);
+      break;
+    case 6:
+      display[i][0] |= (pin_13_display | pin_5_display);
+      display[i][1] |= (pin_14_display | pin_11_display | pin_3_display);
+      break;
+    case 7:
+      display[i][0] |= pin_13_display;
+      display[i][1] |= (pin_16_display | pin_14_display);
+      break;
+    case 8:
+      display[i][0] |= (pin_13_display | pin_5_display);
+      display[i][1] |= (pin_16_display | pin_15_display | pin_14_display |
+                        pin_11_display | pin_3_display);
+      break;
+    case 9:
+      display[i][0] |= pin_13_display;
+      display[i][1] |= (pin_16_display | pin_15_display | pin_14_display | pin_11_display);
+      break;
+    }
+  }
 }
 
 void led_on(int pin)
