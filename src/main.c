@@ -12,6 +12,23 @@ const int pin_button_green = 0x400;  	//C10
 const int pin_button_yellow = 0x40;		//C6
 const int pin_button_blue = 0x20;		//C5
 
+const int pin_1_display = 0x20;			//E5
+const int pin_2_display = 0x10;			//E4
+const int pin_3_display = 0x8;			//E3
+const int pin_4_display = 0x4;			//E2
+const int pin_5_display = 0x800;		//B11
+const int pin_6_display = 0x400;		//B10
+const int pin_7_display = 0x200;		//B9
+const int pin_8_display = 0x100;		//B8
+const int pin_9_display	= 0x1;			//B0
+const int pin_10_display = 0x2;			//B1
+const int pin_11_display = 0x800000;	//E23
+const int pin_12_display = 0x8;			//B3
+const int pin_13_display = 0x4;			//B2
+const int pin_14_display = 0x400000;	//E22
+const int pin_15_display = 0x200000;	//E21
+const int pin_16_display = 0x100000;	//E20
+
 void retard(int n);
 void GeneraSequencia(int *sequencia,int tamany_sequencia);
 int  SequenciaUsuari(int *sequencia_user, int tamany_sequencia);
@@ -20,6 +37,8 @@ void PulsaJugador();
 void ContadorPunts();
 void EnvioI2C();
 void ResultatIncorrecte();
+
+//Inicializa todos los periféricos
 void init();
 
 
@@ -49,7 +68,9 @@ int main (void)
 void init()
 {
 	// Configuración del reloj del sistema
+		SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;		// Habilitamos el clock en el puerto B
 		SIM_SCGC5 |= SIM_SCGC5_PORTC_MASK;		// Habilitamos el clock en el puerto C
+		SIM_SCGC5 |= SIM_SCGC5_PORTE_MASK;		// Habilitamos el clock en el puerto E
 		
 		// Configuramos el pin como  GPIO
 		PORTC_PCR12 = 0x100;
@@ -62,12 +83,31 @@ void init()
 		PORTC_PCR6 = 0x100;
 		PORTC_PCR5 = 0x100;
 		
-		// Configuramos el pin como salida
-		GPIOC_PDDR |= pin_led_red;
-		GPIOC_PDDR |= pin_led_green;
-		GPIOC_PDDR |= pin_led_yellow;
-		GPIOC_PDDR |= pin_led_blue;
+		PORTE_PCR2 = 0x100;
+		PORTE_PCR3 = 0x100;
+		PORTE_PCR4 = 0x100;
+		PORTE_PCR5 = 0x100;
+		PORTE_PCR20 = 0x100;
+		PORTE_PCR21 = 0x100;
+		PORTE_PCR22 = 0x100;
+		PORTE_PCR23 = 0x100;
+		PORTB_PCR0 = 0x100;
+		PORTB_PCR1 = 0x100;
+		PORTB_PCR2 = 0x100;
+		PORTB_PCR3 = 0x100;
+		PORTB_PCR8 = 0x100;
+		PORTB_PCR9 = 0x100;
+		PORTB_PCR10 = 0x100;
+		PORTB_PCR11 = 0x100;
 		
+		// Configuramos los pines como salida
+		GPIOC_PDDR |= (pin_led_red | pin_led_green | pin_led_yellow | pin_led_blue);
+		GPIOE_PDDR |= (pin_1_display | pin_2_display | pin_3_display | pin_4_display
+						| pin_11_display | pin_14_display | pin_15_display | pin_16_display);
+		GPIOB_PDDR |= (pin_5_display | pin_6_display | pin_7_display | pin_8_display
+						| pin_9_display | pin_10_display | pin_12_display);
+		
+		//Configuramos los pines como entrada
 		GPIOC_PDDR &= ~pin_button_red;
 		GPIOC_PDDR &= ~pin_button_green;
 		GPIOC_PDDR &= ~pin_button_yellow;
